@@ -1,0 +1,16 @@
+on:
+  push:
+  pull_request:
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - run: node record.js
+      - uses: actions/upload-artifact@v2
+        with:
+          name: videos
+          path: videos
