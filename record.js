@@ -9,7 +9,7 @@ const urls = {
 
 (async () => {
   const browser = await chromium.launch();
-  const videoPathsPromise = Object.keys(urls).map(async (key) => {
+  for (key of Object.keys(urls)) {
     const url = urls[key];
     const page = await browser.newPage({
       recordVideo: {
@@ -24,16 +24,11 @@ const urls = {
 
     await page.waitForTimeout(60 * 1000);
     await page.close();
-    return [await page.video().path(), key];
-  });
-
-  const videoPaths = await Promise.all(videoPathsPromise);
+    const videoPath = await page.video().path();
+    const ext = path.extname(videoPath);
+    const dir = path.dirname(videoPath);
+    fs.renameSync(videoPath, dir + "/" + key + ext);
+  }
 
   await browser.close();
-
-  videoPaths.forEach((videoPath) => {
-    const ext = path.extname(videoPath[0]);
-    const dir = path.dirname(videoPath[0]);
-    fs.renameSync(videoPath[0], dir + "/" + videoPath[1] + ext);
-  });
 })();
